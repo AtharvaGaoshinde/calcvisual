@@ -79,11 +79,11 @@ flowchart LR
 
 ## Deploy
 
-**GitHub Pages (automatic).** Create a new GitHub repository, upload these files, then open **Settings, Pages** and set **Source** to **GitHub Actions**. Every push to `main` runs the tests and publishes `index.html` at `https://YOUR-NAME.github.io/REPO-NAME/`.
+CalcVisual is deployed using Netlify.
 
-**Netlify (no account setup needed to try).** Drag the folder onto <https://app.netlify.com/drop>.
+🌐 https://calcvisual.netlify.app/
 
-**Anywhere else.** The whole app is `index.html`. Upload that one file to any static host. It loads three.js and math.js from a CDN, so visitors need an internet connection.
+The application runs directly in the browser and does not require a traditional build step.
 
 ## Tests
 
@@ -96,7 +96,7 @@ npm test
 
 Manual checks were done in desktop Chromium at phone, tablet, and desktop sizes with simulated touch and keyboard. It has **not** been tested on physical iOS or Android devices.
 
-## Known limits
+## limits
 
 - No inequality shading (`y > x^2`) and no integral or limit input.
 - Implicit surfaces are sampled only inside a cube that scales with zoom.
@@ -108,5 +108,8 @@ Manual checks were done in desktop Chromium at phone, tablet, and desktop sizes 
 three.js r128, math.js 12.4.1, Space Grotesk. Design tokens are in [DESIGN.md](DESIGN.md).
 
 ## License
+## Copyright
 
-Not chosen yet. Add a `LICENSE` file (MIT is a common choice) before publishing.
+Copyright © 2026 Atharva Gaoshinde.
+
+All rights reserved. Please contact the author for permission before reusing or redistributing this project.
