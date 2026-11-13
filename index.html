@@ -138,6 +138,8 @@ body.kb aside .tabs,body.kb aside #scrCalc{display:none!important}body.kb aside 
 .saved-eq-item .actions{display:flex;gap:4px}
 .saved-eq-item button{padding:3px 8px;font-size:11px;border-radius:6px}
 .security-note{font-size:11px;color:var(--dim);margin-top:2px;display:flex;align-items:center;gap:4px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#0c0e26;border:1px solid var(--cy);color:var(--ink);padding:10px 18px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 0 25px rgba(94,242,255,.35);z-index:2000;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -166,6 +168,8 @@ body.kb aside .tabs,body.kb aside #scrCalc{display:none!important}body.kb aside 
   <div class="pick"><span data-i="colr"></span><input type="color" id="col" value="#5ef2ff" aria-label="Color"><select id="pal" aria-label="Color fill"><option value="none" data-i="nofill"></option><option value="heat" data-i="heatm"></option><option value="solid" data-i="solid"></option></select></div>
   <select id="pln" aria-label="Plane"><option value="xy">XY plane</option><option value="xz">XZ plane</option><option value="yz">YZ plane</option></select>
   <select id="lang" aria-label="Language"><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="zh">中文</option></select>
+  <button id="shareBtn" type="button" class="hb" title="Copy shareable link to this graph">🔗 <span id="shareBtnText">Share</span></button>
+  <button id="exportBtn" type="button" class="hb" title="Download PNG screenshot of graph">📸 <span id="exportBtnText">Export</span></button>
   <button id="authBtn" type="button" class="hb auth-btn" aria-haspopup="dialog" aria-expanded="false" title="User account and security"><span id="authIcon">👤</span> <span id="authBtnLabel">Log In / Sign Up</span></button></div>
 </header>
 <aside data-s="eq">
@@ -174,6 +178,7 @@ body.kb aside .tabs,body.kb aside #scrCalc{display:none!important}body.kb aside 
   <div id="scrEq">
   <div style="display:flex;gap:6px;align-items:center">
     <input id="in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" value="f(x,y) = x^2 - y^2" aria-label="Expression" style="flex:1">
+    <button id="quickShareBtn" type="button" class="hb" title="Copy shareable link" style="white-space:nowrap;padding:10px 12px;font-size:14px;display:flex;align-items:center;gap:4px">🔗 <span id="quickShareBtnText">Share</span></button>
     <button id="saveEqBtn" type="button" class="hb" title="Save this equation to your account" style="white-space:nowrap;padding:10px 12px;font-size:14px;display:flex;align-items:center;gap:4px">★ <span id="saveEqBtnText">Save</span></button>
   </div>
   <div class="sym" id="sym"></div>
@@ -431,7 +436,7 @@ function buildSliders(){const box=$('#sl');box.innerHTML='';if(!st||!st.syms||!s
     d.querySelector('input').oninput=e=>{P[s]=+e.target.value;d.querySelector('output').textContent=P[s];schedule(true)};box.append(d)})}
 
 /* ---------- three.js scene ---------- */
-const gl=$('#gl'),renderer=new THREE.WebGLRenderer({canvas:gl,alpha:true,antialias:!matchMedia('(pointer:coarse)').matches});
+const gl=$('#gl'),renderer=new THREE.WebGLRenderer({canvas:gl,alpha:true,antialias:!matchMedia('(pointer:coarse)').matches,preserveDrawingBuffer:true});
 const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(50,1,.1,400);
 const dot=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'#fff');r.addColorStop(.3,'rgba(255,255,255,.35)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,64,64);return new THREE.CanvasTexture(c)})();
 function cloud(n,size,op,colors,r0,r1){const p=new Float32Array(n*3),c=new Float32Array(n*3);
@@ -673,6 +678,13 @@ const DEMOS=[
   {t:'Vector field flow',eq:'<y,-sin(x)-0.3y>',show:'<y, -sin x - 0.3y>',mode:'2d',view:{R:6,cx:0,cy:0}},
   {t:'Gaussian surface',eq:'z=3exp(-(x^2+y^2)/6)',mode:'3d'},
   {t:'Möbius strip',eq:'((2+(v/pi-1)cos(u/2))cos(u),(2+(v/pi-1)cos(u/2))sin(u),(v/pi-1)sin(u/2))',show:'parametric surface',mode:'3d',rad:13},
+  {t:'Torus surface',eq:'(((3+cos(v))*cos(u),(3+cos(v))*sin(u),sin(v)))',show:'parametric torus surface',mode:'3d',rad:16},
+  {t:'Monkey saddle',eq:'z=(x^3-3x*y^2)/10',show:'z = (x³ - 3xy²)/10',mode:'3d'},
+  {t:'Trefoil knot',eq:'((sin(t)+2sin(2t),cos(t)-2cos(2t),-sin(3t)))',show:'3D trefoil knot curve',mode:'3d',rad:14},
+  {t:'Bessel ripple wave',eq:'z=sin(2.5sqrt(x^2+y^2))/(sqrt(x^2+y^2)+0.2)',show:'circular ripple wave',mode:'3d',rad:22},
+  {t:'Rose curve',eq:'r=3cos(5theta)',show:'r = 3 cos(5θ)',mode:'2d',view:{R:4.2,cx:0,cy:0}},
+  {t:'Julia set fractal',eq:'julia(-0.7, 0.27015)',show:'julia(-0.7, 0.27)',mode:'2d',view:{R:1.6,cx:0,cy:0}},
+  {t:'Vortex vector field',eq:'<-y/(x^2+y^2+0.25),x/(x^2+y^2+0.25)>',show:'swirling vortex flow',mode:'field',view:{R:5,cx:0,cy:0}},
   {t:'Wave interference',eq:'z=(sin(2sqrt((x-2)^2+y^2))+sin(2sqrt((x+2)^2+y^2)))/1.5',show:'two overlapping waves',mode:'3d'},
   {t:'3D saddle surface',eq:'z=(x^2-y^2)/5',mode:'3d'},
   {t:'ODE slope field',eq:'dy/dx=sin(x)-y/2',mode:'2d',view:{R:6,cx:0,cy:0}}];
@@ -766,6 +778,196 @@ resize();update();
   $('#skip').onclick=e=>{e.preventDefault();if(!H.classList.contains('gone'))launch();else $('#vp').focus()};
   $('#homeBtn').onclick=()=>{H.classList.remove('gone');leaving=false;on=true;warp=0;requestAnimationFrame(frame);tick()};
   requestAnimationFrame(frame);tick();$('#launch').focus({preventScroll:true})})();
+
+/* ---------- sharing, export & url loading ---------- */
+let toastTimer = null;
+function showToast(msg) {
+  let toast = $('#toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = 'toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2500);
+}
+globalThis.showToast = showToast;
+
+function getShareUrl() {
+  const inEl = $('#in');
+  const eq = inEl ? inEl.value.trim() : '';
+  const url = new URL(window.location.origin + window.location.pathname);
+  if (eq) url.searchParams.set('eq', eq);
+  if (mode && mode !== '2d') url.searchParams.set('m', mode);
+  if (P && Object.keys(P).length) {
+    url.searchParams.set('p', JSON.stringify(P));
+  }
+  return url.toString();
+}
+
+async function copyShareLink() {
+  const url = getShareUrl();
+  let copied = false;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(url);
+      copied = true;
+    } catch (e) {}
+  }
+  if (!copied) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      copied = document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch (e) {}
+  }
+  if (copied) {
+    showToast('Share link copied to clipboard! 🔗');
+    const b1 = $('#shareBtnText'), b2 = $('#quickShareBtnText');
+    if (b1) b1.textContent = 'Copied! ✓';
+    if (b2) b2.textContent = 'Copied! ✓';
+    setTimeout(() => {
+      if (b1) b1.textContent = 'Share';
+      if (b2) b2.textContent = 'Share';
+    }, 2000);
+  } else {
+    prompt('Copy this link to share:', url);
+  }
+}
+
+function exportSnapshot() {
+  try {
+    const vp = $('#vp');
+    if (!vp) return;
+    const r = vp.getBoundingClientRect();
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const w = Math.round(r.width * dpr);
+    const h = Math.round(r.height * dpr);
+    if (w <= 0 || h <= 0) return;
+
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = w;
+    exportCanvas.height = h;
+    const ctx = exportCanvas.getContext('2d');
+
+    const grad = ctx.createRadialGradient(w * 0.2, 0, 0, w * 0.5, h * 0.5, Math.max(w, h));
+    grad.addColorStop(0, '#14103a');
+    grad.addColorStop(0.6, '#04050d');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    if (mode === '2d') {
+      if (c2 && c2.width && c2.height) {
+        ctx.drawImage(c2, 0, 0, w, h);
+      }
+      if (FLOWON && c3 && c3.width && c3.height) {
+        ctx.drawImage(c3, 0, 0, w, h);
+      }
+    } else {
+      renderer.render(scene, cam);
+      const glCanvas = $('#gl');
+      if (glCanvas && glCanvas.width && glCanvas.height) {
+        const glRect = glCanvas.getBoundingClientRect();
+        const sx = (r.left - glRect.left) * (glCanvas.width / glRect.width);
+        const sy = (r.top - glRect.top) * (glCanvas.height / glRect.height);
+        const sw = r.width * (glCanvas.width / glRect.width);
+        const sh = r.height * (glCanvas.height / glRect.height);
+        ctx.drawImage(glCanvas, sx, sy, sw, sh, 0, 0, w, h);
+      }
+    }
+
+    const curEq = ($('#in') && $('#in').value) ? $('#in').value.trim() : '';
+    ctx.save();
+    ctx.fillStyle = 'rgba(230, 238, 255, 0.65)';
+    ctx.font = `600 ${Math.max(12, Math.round(14 * dpr))}px 'Space Grotesk', system-ui, sans-serif`;
+    ctx.fillText('CalcVisual', 16 * dpr, h - 16 * dpr);
+    if (curEq) {
+      ctx.fillStyle = 'rgba(94, 242, 255, 0.85)';
+      ctx.font = `400 ${Math.max(11, Math.round(13 * dpr))}px 'Space Grotesk', system-ui, sans-serif`;
+      ctx.textAlign = 'right';
+      const maxChars = Math.floor(w / (10 * dpr));
+      const displayEq = curEq.length > maxChars ? curEq.slice(0, maxChars - 2) + '…' : curEq;
+      ctx.fillText(displayEq, w - 16 * dpr, h - 16 * dpr);
+    }
+    ctx.restore();
+
+    const dataUrl = exportCanvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    const cleanName = (curEq || 'plot').replace(/[^a-zA-Z0-9_\-]/g, '_').slice(0, 30);
+    const filename = `calcvisual-${cleanName}.png`;
+    a.download = filename;
+    a.href = dataUrl;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    showToast('Snapshot downloaded: ' + filename);
+    const expText = $('#exportBtnText');
+    if (expText) {
+      expText.textContent = 'Saved! ✓';
+      setTimeout(() => { expText.textContent = 'Export'; }, 2000);
+    }
+  } catch (err) {
+    showToast('Snapshot export failed.');
+  }
+}
+
+function initUrlParams() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const hash = window.location.hash ? new URLSearchParams(window.location.hash.slice(1)) : null;
+    const eq = params.get('eq') || (hash && hash.get('eq'));
+    if (!eq) return;
+
+    const m = params.get('m') || (hash && hash.get('m'));
+    const pStr = params.get('p') || (hash && hash.get('p'));
+    if (pStr) {
+      try {
+        const parsedP = JSON.parse(pStr);
+        if (typeof parsedP === 'object' && parsedP !== null) {
+          P = parsedP;
+        }
+      } catch (e) {}
+    }
+
+    $('#in').value = eq;
+    if (m && ['2d', '3d', 'field'].includes(m)) {
+      mode = m;
+    }
+
+    const H = $('#home');
+    if (H) {
+      H.classList.add('gone');
+      H.classList.remove('leaving');
+    }
+
+    update();
+    setMode(mode);
+    setTimeout(() => {
+      showToast('Loaded shared equation: ' + eq);
+    }, 400);
+  } catch (e) {}
+}
+
+const sBtn = $('#shareBtn'), qsBtn = $('#quickShareBtn'), exBtn = $('#exportBtn');
+if (sBtn) sBtn.onclick = () => copyShareLink();
+if (qsBtn) qsBtn.onclick = () => copyShareLink();
+if (exBtn) exBtn.onclick = () => exportSnapshot();
+setTimeout(initUrlParams, 50);
 
 /* ---------- resizable panel ---------- */
 (()=>{const g=$('#grab'),a=document.querySelector('aside'),fit=()=>{const W=innerWidth,Hh=innerHeight,r=$('#vp').getBoundingClientRect();PA=Math.min(r.width,r.height)/Hh;cam.setViewOffset(W,Hh,-(r.left+r.width/2-W/2),-(r.top+r.height/2-Hh/2),W,Hh);cam.updateProjectionMatrix()};
@@ -1023,6 +1225,18 @@ function renderSavedEquations() {
     loadBtn.textContent = 'Load';
     loadBtn.onclick = () => loadEquation(item.eq);
 
+    const shareBtn = document.createElement('button');
+    shareBtn.type = 'button';
+    shareBtn.className = 'hb';
+    shareBtn.textContent = '🔗';
+    shareBtn.title = 'Copy share link';
+    shareBtn.onclick = () => {
+      const url = new URL(window.location.origin + window.location.pathname);
+      url.searchParams.set('eq', item.eq);
+      navigator.clipboard?.writeText(url.toString());
+      if (window.showToast) window.showToast('Copied link for ' + item.eq);
+    };
+
     const delBtn = document.createElement('button');
     delBtn.type = 'button';
     delBtn.className = 'hb';
@@ -1031,7 +1245,7 @@ function renderSavedEquations() {
     delBtn.title = 'Delete saved equation';
     delBtn.onclick = () => deleteUserEquation(currentUser.id, item.eq);
 
-    actions.append(loadBtn, delBtn);
+    actions.append(loadBtn, shareBtn, delBtn);
     row.append(code, actions);
     savedEqList.appendChild(row);
   });
@@ -1229,5 +1443,6 @@ logoutBtn.onclick = async () => {
   });
 })();
 </script>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

@@ -25,11 +25,15 @@ Open `index.html` in a browser. There is no build step. It needs an internet con
 
 Extra letters in an equation, such as `c` in `y=x^2+c`, become sliders. A plane selector slices any 3D equation onto the XY, XZ, or YZ plane.
 
-### Demo presets
+### Demo presets & Features
 
-The **Flow** button animates vector fields, slope fields and surface gradients in 2D, 3D and the vector-field view. The **Color** menu fills 2D surfaces with a heat map; it is off by default.
+- **Flow**: Animates vector fields, slope fields, and surface gradients in 2D, 3D, and the vector-field view.
+- **Color & Plane**: Fills surfaces with color heatmaps or slices 3D equations along XY, XZ, or YZ planes.
+- **Share Links**: Generates instant shareable URLs with equation parameters in query strings for 1-click sharing.
+- **Export Image**: Captures and downloads high-resolution PNG snapshots of 2D graphs and 3D surface visualizations.
+- **User Accounts & Bookmarks**: Secure user login and password management via Netlify Identity to save favorite equations.
 
-Pick a demo from the **Demos** menu or the home page: Mandelbrot set, Lorenz attractor, vector field flow (a damped pendulum), Gaussian surface, Möbius strip, wave interference, 3D saddle surface, and an ODE slope field.
+Pick a demo from the **Demos** menu or the home page: Mandelbrot set, Lorenz attractor, vector field flow, Gaussian surface, Möbius strip, Torus surface, Monkey saddle, Trefoil knot, Bessel ripple wave, Rose curve, Julia set, Vortex flow, wave interference, 3D saddle surface, and ODE slope field.
 
 ## Architecture
 
@@ -96,12 +100,11 @@ npm test
 
 Manual checks were done in desktop Chromium at phone, tablet, and desktop sizes with simulated touch and keyboard. It has **not** been tested on physical iOS or Android devices.
 
-## limits
+## Limits
 
 - No inequality shading (`y > x^2`) and no integral or limit input.
 - Implicit surfaces are sampled only inside a cube that scales with zoom.
 - Labels are mostly English even though the language menu lists five languages.
-- Graphs cannot be saved or shared.
 
 ## Stack
 
