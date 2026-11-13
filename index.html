@@ -111,6 +111,33 @@ body.kb aside .tabs,body.kb aside #scrCalc{display:none!important}body.kb aside 
 .hero .typed b{color:var(--cy);font-weight:500;font-family:'Cambria Math',Georgia,serif;display:inline-block;min-width:1ch;min-height:1em}
 .hb[aria-pressed=true]{background:rgba(94,242,255,.22);border-color:var(--cy);box-shadow:0 0 14px rgba(94,242,255,.4)}
 .hb{background:rgba(94,242,255,.06);border:1px solid var(--ln);border-radius:8px;padding:5px 12px;cursor:pointer}
+.auth-btn{display:flex;align-items:center;gap:6px;font-weight:500}
+.modal-backdrop{position:fixed;inset:0;background:rgba(4,5,13,.82);backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-backdrop[hidden]{display:none}
+.modal-card{background:#0c0e26;border:1px solid var(--ln);border-radius:14px;box-shadow:0 0 35px rgba(94,242,255,.2);width:100%;max-width:420px;padding:22px;display:flex;flex-direction:column;max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-header h2{margin:0;font-size:18px;color:var(--cy)}
+.modal-close{background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:6px}
+.modal-close:hover{color:var(--ink);background:rgba(255,255,255,.1)}
+.modal-tabs{display:flex;gap:6px;margin-bottom:14px;border-bottom:1px solid rgba(94,242,255,.15);padding-bottom:8px}
+.modal-tab{flex:1;background:rgba(94,242,255,.06);border:1px solid var(--ln);border-radius:8px;padding:7px;cursor:pointer;font-weight:500;font-size:13px;color:var(--ink)}
+.modal-tab[aria-selected=true]{background:rgba(94,242,255,.25);border-color:var(--cy);box-shadow:0 0 12px rgba(94,242,255,.3)}
+.auth-form{display:flex;flex-direction:column;gap:10px}
+.auth-form label{font-size:12px;color:var(--dim);font-weight:500}
+.auth-form input{background:rgba(0,0,0,.45);border:1px solid var(--ln);border-radius:8px;padding:8px 10px;font-size:14px;color:var(--ink)}
+.auth-form input:focus{border-color:var(--cy);outline:none}
+.auth-msg{font-size:12px;padding:8px 10px;border-radius:8px;margin-bottom:10px;display:none}
+.auth-msg.err{display:block;background:rgba(255,95,168,.12);border:1px solid rgba(255,95,168,.4);color:#ff8ab8}
+.auth-msg.ok{display:block;background:rgba(94,242,255,.12);border:1px solid var(--cy);color:var(--cy)}
+.link-btn{background:none;border:none;color:var(--cy);font-size:12px;cursor:pointer;padding:0;text-decoration:underline}
+.auth-user-badge{display:flex;gap:12px;align-items:center;padding:12px;background:rgba(94,242,255,.06);border:1px solid var(--ln);border-radius:10px}
+.auth-avatar{width:38px;height:38px;border-radius:50%;background:rgba(94,242,255,.15);border:1px solid var(--cy);display:flex;align-items:center;justify-content:center;font-size:18px}
+.saved-eq-list{display:flex;flex-direction:column;gap:6px;max-height:190px;overflow-y:auto;margin-top:6px}
+.saved-eq-item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;background:rgba(0,0,0,.35);border:1px solid var(--ln);border-radius:8px;font-size:13px}
+.saved-eq-item code{color:var(--cy);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.saved-eq-item .actions{display:flex;gap:4px}
+.saved-eq-item button{padding:3px 8px;font-size:11px;border-radius:6px}
+.security-note{font-size:11px;color:var(--dim);margin-top:2px;display:flex;align-items:center;gap:4px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -138,13 +165,17 @@ body.kb aside .tabs,body.kb aside #scrCalc{display:none!important}body.kb aside 
   <button id="flowBtn" type="button" class="hb" aria-pressed="true" title="Animate the flow of vector fields, slope fields and gradients">Flow</button>
   <div class="pick"><span data-i="colr"></span><input type="color" id="col" value="#5ef2ff" aria-label="Color"><select id="pal" aria-label="Color fill"><option value="none" data-i="nofill"></option><option value="heat" data-i="heatm"></option><option value="solid" data-i="solid"></option></select></div>
   <select id="pln" aria-label="Plane"><option value="xy">XY plane</option><option value="xz">XZ plane</option><option value="yz">YZ plane</option></select>
-  <select id="lang" aria-label="Language"><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="zh">中文</option></select></div>
+  <select id="lang" aria-label="Language"><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="zh">中文</option></select>
+  <button id="authBtn" type="button" class="hb auth-btn" aria-haspopup="dialog" aria-expanded="false" title="User account and security"><span id="authIcon">👤</span> <span id="authBtnLabel">Log In / Sign Up</span></button></div>
 </header>
 <aside data-s="eq">
   <div class="grab" id="grab" role="separator" aria-orientation="horizontal" aria-label="Drag to resize the panel" tabindex="0"></div>
   <div class="tabs" id="tabs" role="tablist"><button id="tabEq" type="button" role="tab" aria-selected="true">Equation</button><button id="tabCalc" type="button" role="tab" aria-selected="false">Calculator</button></div>
   <div id="scrEq">
-  <input id="in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" value="f(x,y) = x^2 - y^2" aria-label="Expression">
+  <div style="display:flex;gap:6px;align-items:center">
+    <input id="in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" value="f(x,y) = x^2 - y^2" aria-label="Expression" style="flex:1">
+    <button id="saveEqBtn" type="button" class="hb" title="Save this equation to your account" style="white-space:nowrap;padding:10px 12px;font-size:14px;display:flex;align-items:center;gap:4px">★ <span id="saveEqBtnText">Save</span></button>
+  </div>
   <div class="sym" id="sym"></div>
   <div id="wait" class="wait" role="status" aria-live="polite"></div>
   <div class="chips" id="ex"><span class="hint" data-i="try"></span></div>
@@ -748,6 +779,455 @@ resize();update();
   sp.addEventListener('pointerdown',e=>{d=true;sy=e.clientY;sh=$('#scrEq').getBoundingClientRect().height;sp.setPointerCapture(e.pointerId)});
   sp.addEventListener('pointermove',e=>{if(!d)return;const tot=a.getBoundingClientRect().height;root.style.setProperty('--eqh',Math.max(110,Math.min(tot-210,sh+(e.clientY-sy)))+'px')});
   const e2=()=>{d=false};sp.addEventListener('pointerup',e2);sp.addEventListener('pointercancel',e2);sp.addEventListener('dblclick',()=>root.style.removeProperty('--eqh'))})();
+</script>
+
+<!-- Auth & Security Modal -->
+<div id="authModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" hidden>
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2 id="authModalTitle">Account & Security</h2>
+      <button id="authCloseBtn" type="button" class="modal-close" aria-label="Close dialog">✕</button>
+    </div>
+
+    <!-- Logged-in View -->
+    <div id="authLoggedInView" hidden>
+      <div class="auth-user-badge">
+        <div class="auth-avatar">👤</div>
+        <div style="flex:1;min-width:0">
+          <div id="userFullName" style="font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+          <div id="userEmail" style="color:var(--dim);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+          <div style="color:var(--cy);font-size:11px;margin-top:2px;display:flex;align-items:center;gap:4px">
+            <span>🔒</span> <span>Encrypted Session (JWT)</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <h3 style="margin:0;font-size:14px;color:var(--cy);font-weight:500">★ Saved Equations</h3>
+          <button id="saveCurrentFromModalBtn" type="button" class="hb" style="font-size:12px;padding:3px 8px">+ Save Current</button>
+        </div>
+        <div id="savedEqList" class="saved-eq-list"></div>
+      </div>
+
+      <div style="margin-top:20px;display:flex;gap:8px;justify-content:flex-end">
+        <button id="logoutBtn" type="button" class="hb" style="border-color:rgba(255,95,168,.5);color:#ff8ab8">Log Out</button>
+      </div>
+    </div>
+
+    <!-- Logged-out View -->
+    <div id="authLoggedOutView">
+      <div class="modal-tabs" role="tablist">
+        <button id="tabLogin" type="button" class="modal-tab" aria-selected="true">Log In</button>
+        <button id="tabSignup" type="button" class="modal-tab" aria-selected="false">Sign Up</button>
+        <button id="tabRecover" type="button" class="modal-tab" aria-selected="false" style="display:none">Reset</button>
+      </div>
+
+      <div id="authMsg" class="auth-msg" role="status" aria-live="polite"></div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form" novalidate>
+        <div>
+          <label for="loginEmail">Email address</label>
+          <input id="loginEmail" type="email" autocomplete="email" required placeholder="name@example.com">
+        </div>
+        <div>
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" required placeholder="••••••••">
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:-2px">
+          <button id="forgotPwLink" type="button" class="link-btn">Forgot password?</button>
+        </div>
+        <button id="loginSubmitBtn" type="submit" class="rc" style="margin-top:8px">Log In</button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signupForm" class="auth-form" style="display:none" novalidate>
+        <div>
+          <label for="signupName">Full Name (optional)</label>
+          <input id="signupName" type="text" autocomplete="name" placeholder="Ada Lovelace">
+        </div>
+        <div>
+          <label for="signupEmail">Email address</label>
+          <input id="signupEmail" type="email" autocomplete="email" required placeholder="name@example.com">
+        </div>
+        <div>
+          <label for="signupPassword">Password <small style="color:var(--dim)">(min. 8 characters)</small></label>
+          <input id="signupPassword" type="password" autocomplete="new-password" required minlength="8" placeholder="••••••••">
+        </div>
+        <div class="security-note">🛡️ Protected with HTTPS & Netlify Identity GoTrue encryption.</div>
+        <button id="signupSubmitBtn" type="submit" class="rc" style="margin-top:8px">Create Account</button>
+      </form>
+
+      <!-- Recover Form -->
+      <form id="recoverForm" class="auth-form" style="display:none" novalidate>
+        <p style="font-size:13px;color:var(--dim);margin:0">Enter your email and we'll send you a password reset link.</p>
+        <div>
+          <label for="recoverEmail">Email address</label>
+          <input id="recoverEmail" type="email" autocomplete="email" required placeholder="name@example.com">
+        </div>
+        <button id="recoverSubmitBtn" type="submit" class="rc" style="margin-top:8px">Send Reset Link</button>
+        <div style="text-align:center;margin-top:6px">
+          <button id="backToLoginLink" type="button" class="link-btn">Back to Log In</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import {
+  login,
+  signup,
+  logout,
+  getUser,
+  onAuthChange,
+  requestPasswordRecovery,
+  handleAuthCallback,
+  AUTH_EVENTS,
+  AuthError,
+  MissingIdentityError
+} from './identity.esm.js';
+
+let currentUser = null;
+
+const authModal = document.getElementById('authModal');
+const authBtn = document.getElementById('authBtn');
+const authBtnLabel = document.getElementById('authBtnLabel');
+const authCloseBtn = document.getElementById('authCloseBtn');
+const authLoggedInView = document.getElementById('authLoggedInView');
+const authLoggedOutView = document.getElementById('authLoggedOutView');
+const userFullName = document.getElementById('userFullName');
+const userEmail = document.getElementById('userEmail');
+const savedEqList = document.getElementById('savedEqList');
+const saveEqBtn = document.getElementById('saveEqBtn');
+const saveEqBtnText = document.getElementById('saveEqBtnText');
+const saveCurrentFromModalBtn = document.getElementById('saveCurrentFromModalBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+
+const tabLogin = document.getElementById('tabLogin');
+const tabSignup = document.getElementById('tabSignup');
+const tabRecover = document.getElementById('tabRecover');
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const recoverForm = document.getElementById('recoverForm');
+const forgotPwLink = document.getElementById('forgotPwLink');
+const backToLoginLink = document.getElementById('backToLoginLink');
+const authMsg = document.getElementById('authMsg');
+
+function showMsg(text, isError = false) {
+  if (!text) {
+    authMsg.className = 'auth-msg';
+    authMsg.textContent = '';
+    return;
+  }
+  authMsg.className = 'auth-msg ' + (isError ? 'err' : 'ok');
+  authMsg.textContent = text;
+}
+
+function setTab(tab) {
+  showMsg('');
+  tabLogin.setAttribute('aria-selected', tab === 'login');
+  tabSignup.setAttribute('aria-selected', tab === 'signup');
+  tabRecover.setAttribute('aria-selected', tab === 'recover');
+
+  loginForm.style.display = tab === 'login' ? 'flex' : 'none';
+  signupForm.style.display = tab === 'signup' ? 'flex' : 'none';
+  recoverForm.style.display = tab === 'recover' ? 'flex' : 'none';
+}
+
+function openModal(initialTab = 'login', msg = '') {
+  authModal.hidden = false;
+  authBtn.setAttribute('aria-expanded', 'true');
+  if (currentUser) {
+    authLoggedInView.hidden = false;
+    authLoggedOutView.hidden = true;
+    renderSavedEquations();
+  } else {
+    authLoggedInView.hidden = true;
+    authLoggedOutView.hidden = false;
+    setTab(initialTab);
+    if (msg) showMsg(msg, false);
+  }
+}
+
+function closeModal() {
+  authModal.hidden = true;
+  authBtn.setAttribute('aria-expanded', 'false');
+  showMsg('');
+}
+
+// User Equation Management (isolated per user)
+function getSavedEquations(userId) {
+  if (!userId) return [];
+  try {
+    const raw = localStorage.getItem(`calcvisual_eqs_${userId}`);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveUserEquation(userId, eq) {
+  if (!userId || !eq) return;
+  const list = getSavedEquations(userId).filter(item => item.eq !== eq);
+  list.unshift({ eq, savedAt: new Date().toISOString() });
+  try {
+    localStorage.setItem(`calcvisual_eqs_${userId}`, JSON.stringify(list.slice(0, 50)));
+  } catch (e) {}
+}
+
+function deleteUserEquation(userId, eq) {
+  if (!userId) return;
+  const list = getSavedEquations(userId).filter(item => item.eq !== eq);
+  try {
+    localStorage.setItem(`calcvisual_eqs_${userId}`, JSON.stringify(list));
+  } catch (e) {}
+  renderSavedEquations();
+}
+
+function loadEquation(eq) {
+  const inEl = document.getElementById('in');
+  if (inEl) {
+    inEl.value = eq;
+    inEl.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  closeModal();
+}
+
+function renderSavedEquations() {
+  if (!currentUser) return;
+  const eqs = getSavedEquations(currentUser.id);
+  savedEqList.innerHTML = '';
+  if (eqs.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'color:var(--dim);font-size:12px;padding:8px;text-align:center';
+    empty.textContent = 'No equations saved yet. Click "★ Save" to bookmark your equations!';
+    savedEqList.appendChild(empty);
+    return;
+  }
+  eqs.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'saved-eq-item';
+
+    const code = document.createElement('code');
+    code.textContent = item.eq;
+    code.title = item.eq;
+
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+
+    const loadBtn = document.createElement('button');
+    loadBtn.type = 'button';
+    loadBtn.className = 'hb';
+    loadBtn.textContent = 'Load';
+    loadBtn.onclick = () => loadEquation(item.eq);
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'hb';
+    delBtn.style.color = '#ff8ab8';
+    delBtn.textContent = '✕';
+    delBtn.title = 'Delete saved equation';
+    delBtn.onclick = () => deleteUserEquation(currentUser.id, item.eq);
+
+    actions.append(loadBtn, delBtn);
+    row.append(code, actions);
+    savedEqList.appendChild(row);
+  });
+}
+
+function updateAuthUI() {
+  if (currentUser) {
+    const name = currentUser.user_metadata?.full_name || currentUser.name || currentUser.email?.split('@')[0] || 'User';
+    authBtnLabel.textContent = name;
+    userFullName.textContent = name;
+    userEmail.textContent = currentUser.email || '';
+  } else {
+    authBtnLabel.textContent = 'Log In / Sign Up';
+  }
+}
+
+// Modal event listeners
+authBtn.onclick = () => openModal();
+authCloseBtn.onclick = closeModal;
+authModal.onclick = e => {
+  if (e.target === authModal) closeModal();
+};
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !authModal.hidden) closeModal();
+});
+
+tabLogin.onclick = () => setTab('login');
+tabSignup.onclick = () => setTab('signup');
+forgotPwLink.onclick = () => setTab('recover');
+backToLoginLink.onclick = () => setTab('login');
+
+// Save equation action
+function handleSaveEquation() {
+  if (!currentUser) {
+    openModal('signup', 'Create an account or log in to securely save your equations.');
+    return;
+  }
+  const inEl = document.getElementById('in');
+  const eq = inEl ? inEl.value.trim() : '';
+  if (!eq) return;
+
+  saveUserEquation(currentUser.id, eq);
+  if (saveEqBtnText) {
+    saveEqBtnText.textContent = 'Saved ✓';
+    setTimeout(() => {
+      saveEqBtnText.textContent = 'Save';
+    }, 1500);
+  }
+  if (!authModal.hidden) renderSavedEquations();
+}
+
+saveEqBtn.onclick = handleSaveEquation;
+saveCurrentFromModalBtn.onclick = handleSaveEquation;
+
+// Form submissions
+loginForm.onsubmit = async e => {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const submitBtn = document.getElementById('loginSubmitBtn');
+
+  if (!email || !password) {
+    showMsg('Please provide both email and password.', true);
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Logging in...';
+  showMsg('');
+
+  try {
+    const user = await login(email, password);
+    currentUser = user;
+    updateAuthUI();
+    showMsg('Logged in successfully!', false);
+    setTimeout(closeModal, 600);
+  } catch (err) {
+    if (err instanceof MissingIdentityError) {
+      showMsg('Netlify Identity is not yet initialized for this site. Please ensure Identity is enabled.', true);
+    } else if (err instanceof AuthError) {
+      showMsg(err.status === 401 ? 'Invalid email or password.' : err.message, true);
+    } else {
+      showMsg(err?.message || 'Login failed. Please check your credentials.', true);
+    }
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Log In';
+  }
+};
+
+signupForm.onsubmit = async e => {
+  e.preventDefault();
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPassword').value;
+  const submitBtn = document.getElementById('signupSubmitBtn');
+
+  if (!email || !password) {
+    showMsg('Please enter an email and password.', true);
+    return;
+  }
+  if (password.length < 8) {
+    showMsg('Password must be at least 8 characters long.', true);
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Creating account...';
+  showMsg('');
+
+  try {
+    const user = await signup(email, password, { full_name: name });
+    if (user?.emailVerified) {
+      currentUser = user;
+      updateAuthUI();
+      showMsg('Account created! You are now logged in.', false);
+      setTimeout(closeModal, 700);
+    } else {
+      showMsg('Account created! Please check your email to verify your account.', false);
+    }
+  } catch (err) {
+    if (err instanceof MissingIdentityError) {
+      showMsg('Netlify Identity is not yet initialized for this site.', true);
+    } else if (err instanceof AuthError) {
+      showMsg(err.status === 403 ? 'Signups are currently invite-only or disabled.' : err.message, true);
+    } else {
+      showMsg(err?.message || 'Signup failed. Please try again.', true);
+    }
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create Account';
+  }
+};
+
+recoverForm.onsubmit = async e => {
+  e.preventDefault();
+  const email = document.getElementById('recoverEmail').value.trim();
+  const submitBtn = document.getElementById('recoverSubmitBtn');
+
+  if (!email) {
+    showMsg('Please enter your email address.', true);
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending...';
+  showMsg('');
+
+  try {
+    await requestPasswordRecovery(email);
+    showMsg('Password reset link sent! Check your inbox.', false);
+  } catch (err) {
+    showMsg(err?.message || 'Could not send recovery link. Please try again.', true);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Send Reset Link';
+  }
+};
+
+logoutBtn.onclick = async () => {
+  try {
+    await logout();
+  } catch (e) {}
+  currentUser = null;
+  updateAuthUI();
+  closeModal();
+};
+
+// Initialize session & handle callbacks
+(async () => {
+  try {
+    const callbackResult = await handleAuthCallback();
+    if (callbackResult?.user) {
+      currentUser = callbackResult.user;
+      updateAuthUI();
+    }
+  } catch (e) {}
+
+  try {
+    const user = await getUser();
+    if (user) {
+      currentUser = user;
+      updateAuthUI();
+    }
+  } catch (e) {}
+
+  onAuthChange((event, user) => {
+    if (event === AUTH_EVENTS.LOGIN || event === AUTH_EVENTS.USER_UPDATED) {
+      currentUser = user;
+      updateAuthUI();
+    } else if (event === AUTH_EVENTS.LOGOUT) {
+      currentUser = null;
+      updateAuthUI();
+    }
+  });
+})();
 </script>
 </body>
 </html>
