@@ -1,0 +1,16 @@
+{
+  "name": "calcvisual",
+  "version": "1.0.0",
+  "description": "An interactive math visualizer and scientific calculator that runs in one HTML file. Type an equation and it is drawn in 2D or 3D as you type, with a live analysis of derivatives, gradients, divergence, curl, and critical points. It is built for students: it works on phones, tablets and PCs, with pinch zoom, a draggable calculator panel, and a symbol row for hard-to-type characters.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@netlify/identity": "^2.0.1"
+  }
+}
